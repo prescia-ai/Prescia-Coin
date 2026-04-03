@@ -1,0 +1,36 @@
+scraping:
+  target_images_per_category: 50  # Mint condition
+  target_errors_per_type: 20      # Each error type
+
+  sources:
+    wikimedia:
+      enabled: true
+      rate_limit: 2  # requests per second
+
+    numista:
+      enabled: true
+      api_key: null  # Uses free tier if null
+      rate_limit: 1
+
+    error_coins:
+      enabled: true
+      sites:
+        - 'error-coins.com'
+        - 'coinsite.com'
+
+    pcgs:
+      enabled: true
+      api_key: null  # Set your PCGS API key here
+      rate_limit: 1
+
+  image_processing:
+    detect_circles: true
+    target_size: [224, 224]
+    quality: 85
+    format: 'jpg'
+
+  filtering:
+    min_resolution: [200, 200]
+    remove_watermarked: true
+    sharpness_threshold: 50
+    remove_duplicates: true
