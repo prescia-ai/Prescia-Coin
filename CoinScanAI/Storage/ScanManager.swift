@@ -139,7 +139,8 @@ class ScanManager: ObservableObject {
     @discardableResult
     private func saveImage(_ image: UIImage, named name: String, in directory: URL) -> String? {
         let url = directory.appendingPathComponent(name)
-        guard let data = image.jpegData(compressionQuality: 0.85) else { return nil }
+        let jpegCompressionQuality: CGFloat = 0.85
+        guard let data = image.jpegData(compressionQuality: jpegCompressionQuality) else { return nil }
         do {
             try data.write(to: url, options: .atomic)
             return url.path

@@ -85,7 +85,7 @@ class FeatureExtractor {
 
         ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
-        // Analyse edge density in a grid of 4x4 blocks
+        // Analyze edge density in a grid of 4x4 blocks
         let gridSize = 4
         let blockW = width / gridSize
         let blockH = height / gridSize
@@ -98,7 +98,8 @@ class FeatureExtractor {
                 let startX = gx * blockW
                 let startY = gy * blockH
 
-                for y in startY..<(startY + blockH - 1) {
+                let edgeDetectionThreshold: Float = 30
+        for y in startY..<(startY + blockH - 1) {
                     for x in startX..<(startX + blockW - 1) {
                         let idx = (y * width + x) * bytesPerPixel
                         let idxR = ((y + 1) * width + x) * bytesPerPixel
@@ -115,7 +116,7 @@ class FeatureExtractor {
                         let below   = lum(idxR)
                         let right   = lum(idxC)
 
-                        if abs(current - below) > 30 || abs(current - right) > 30 {
+                        if abs(current - below) > edgeDetectionThreshold || abs(current - right) > edgeDetectionThreshold {
                             edgeCount += 1
                         }
                     }
@@ -134,9 +135,14 @@ class FeatureExtractor {
         var anomalyRegions: [AnomalyRegion] = []
         var anomalyScore: Float = 0
 
+        // deviationMultiplier: blocks must be > 2 std deviations from mean to flag as anomaly
+        // minimumDensityThreshold: ignore near-empty blocks (< 5% edge pixels)
+        let deviationMultiplier: Float = 2.0
+        let minimumDensityThreshold: Float = 0.05
+
         for (i, density) in edgeDensities.enumerated() {
             let deviation = abs(density - mean)
-            if stdDev > 0 && deviation > 2.0 * stdDev && density > 0.05 {
+            if stdDev > 0 && deviation > deviationMultiplier * stdDev && density > minimumDensityThreshold {
                 let gx = i % gridSize
                 let gy = i / gridSize
                 let rect = CGRect(

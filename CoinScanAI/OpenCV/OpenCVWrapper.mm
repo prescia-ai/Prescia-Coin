@@ -17,14 +17,14 @@
 // MARK: - Helpers
 // ---------------------------------------------------------------------------
 
-static UIImage * _Nullable applyCoreImageFilter(UIImage *image, NSString *filterName, NSDictionary * _Nullable params) {
+static UIImage * _Nullable applyCoreImageFilter(UIImage *image, NSString *filterName, NSDictionary * _Nullable filterParameters) {
     CIImage *ciImage = [CIImage imageWithCGImage:image.CGImage];
     if (!ciImage) return nil;
     CIFilter *filter = [CIFilter filterWithName:filterName];
     if (!filter) return nil;
     [filter setValue:ciImage forKey:kCIInputImageKey];
-    if (params) {
-        [params enumerateKeysAndObjectsUsingBlock:^(NSString *key, id val, BOOL *stop) {
+    if (filterParameters) {
+        [filterParameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, id val, BOOL *stop) {
             [filter setValue:val forKey:key];
         }];
     }
@@ -306,10 +306,17 @@ static UIImage *UIImageFromMat(const cv::Mat &mat) {
 
     float maxAnomaly = 0.0f;
 
+    // deviationMultiplier: blocks > 2 std deviations from mean are flagged as anomalies
+    // minimumDensityThreshold: blocks with < 5% edge pixels are ignored (near-empty regions)
+    // stdDevEpsilon: avoids division by near-zero std dev
+    static const float deviationMultiplier = 2.0f;
+    static const float minimumDensityThreshold = 0.05f;
+    static const float stdDevEpsilon = 0.001f;
+
     for (int i = 0; i < (int)densities.size(); i++) {
         float density = densities[i];
         float deviation = std::abs(density - mean);
-        if (stdDev > 0.001f && deviation > 2.0f * stdDev && density > 0.05f) {
+        if (stdDev > stdDevEpsilon && deviation > deviationMultiplier * stdDev && density > minimumDensityThreshold) {
             int gx = i % gridSize;
             int gy = i / gridSize;
             float confidence = std::min(1.0f, deviation / (stdDev * 4.0f));

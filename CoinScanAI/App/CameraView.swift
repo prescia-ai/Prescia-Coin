@@ -48,9 +48,10 @@ struct CameraView: View {
                     Spacer()
 
                     // Viewfinder guide
-                    RoundedRectangle(cornerRadius: 120)
+                    let viewfinderSize: CGFloat = 240
+                    RoundedRectangle(cornerRadius: viewfinderSize / 2)
                         .stroke(Color.white.opacity(0.7), lineWidth: 2)
-                        .frame(width: 240, height: 240)
+                        .frame(width: viewfinderSize, height: viewfinderSize)
 
                     Spacer()
 
