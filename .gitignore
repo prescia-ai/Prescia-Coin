@@ -1,0 +1,34 @@
+# Xcode build artifacts
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.venv/
+venv/
+env/
+
+# Scraper output (large binary/image files)
+scraper/output/coin-images/
+scraper/output/scrape_state.json
+scraper/output/scrape_report.txt
