@@ -61,17 +61,20 @@ struct ContentView: View {
             let variants = processor.generateAllVariants(image: coinImage)
 
             let extractor = FeatureExtractor()
-            let features = extractor.extract(from: coinImage)
+            let anomalyDetector = AnomalyDetector()
+            let hybridResult = extractor.extractWithAI(from: coinImage, anomalyDetector: anomalyDetector)
 
             let runner = ModelRunner()
-            let prediction = runner.classify(image: coinImage)
+            let enhancedPrediction = runner.classifyEnhanced(image: coinImage)
 
             DispatchQueue.main.async {
                 _ = scanManager.saveScan(
                     original: coinImage,
                     variants: variants,
-                    features: features,
-                    prediction: prediction
+                    hybridResult: hybridResult,
+                    enhancedPrediction: enhancedPrediction,
+                    features: hybridResult.traditionalResult,
+                    prediction: enhancedPrediction.coinType
                 )
             }
         }

@@ -14,6 +14,21 @@ struct AnomalyRegion {
     let confidence: Float
 }
 
+/// Result returned by the hybrid extraction pipeline.
+/// Combines traditional CV features with AI-based anomaly predictions.
+struct HybridExtractionResult {
+    /// Output from traditional computer vision analysis
+    let traditionalResult: ExtractionResult
+    /// AI-based anomaly prediction (nil if AI is unavailable)
+    let aiPrediction: AnomalyPrediction?
+    /// Weighted combination of traditional CV score and AI severity (0.0 – 1.0)
+    let finalAnomalyScore: Float
+    /// Overall confidence in the final score
+    let confidenceLevel: Float
+    /// Which pipeline produced the result: "traditional", "ai", or "hybrid"
+    let detectionMethod: String
+}
+
 class FeatureExtractor {
 
     func extract(from image: UIImage) -> ExtractionResult {
@@ -24,6 +39,48 @@ class FeatureExtractor {
 
         // Fallback: rule-based analysis using pixel data
         return fallbackExtraction(from: image)
+    }
+
+    /// Hybrid pipeline: runs traditional CV first, then uses AnomalyDetector for
+    /// deep AI analysis on potentially flagged images.  The two scores are combined
+    /// with a weighted average that favours whichever method has higher confidence.
+    func extractWithAI(from image: UIImage, anomalyDetector: AnomalyDetector) -> HybridExtractionResult {
+        let traditional = extract(from: image)
+        let aiPrediction = anomalyDetector.detectAnomalies(in: image)
+
+        // Traditional CV uses a fixed baseline weight; AI weight comes from its reported confidence.
+        // This means higher-confidence AI predictions contribute more to the final score.
+        let traditionalWeight: Float = 0.60
+        let aiWeight = aiPrediction.confidence
+
+        let totalWeight = traditionalWeight + aiWeight
+        let weightedScore = (traditional.anomalyScore * traditionalWeight
+                             + aiPrediction.severity   * aiWeight)
+                           / totalWeight
+
+        let finalScore = min(1.0, weightedScore)
+
+        // Confidence reflects how well the two methods agree.
+        // If both flag (or both clear) the coin the confidence is higher.
+        let agreement: Float = abs(traditional.anomalyScore - aiPrediction.severity) < 0.20 ? 0.15 : 0.0
+        let confidence = min(0.95, (aiPrediction.confidence + 0.60) / 2.0 + agreement)
+
+        let method: String
+        if aiWeight > 0.70 && traditional.anomalyScore > 0.30 {
+            method = "hybrid"
+        } else if aiWeight > 0.70 {
+            method = "ai"
+        } else {
+            method = "traditional"
+        }
+
+        return HybridExtractionResult(
+            traditionalResult: traditional,
+            aiPrediction: aiPrediction,
+            finalAnomalyScore: finalScore,
+            confidenceLevel: confidence,
+            detectionMethod: method
+        )
     }
 
     // MARK: - Parse OpenCV Result
