@@ -89,6 +89,7 @@ class FeatureExtractor {
         let gridSize = 4
         let blockW = width / gridSize
         let blockH = height / gridSize
+        let edgeDetectionThreshold: Float = 30
 
         var edgeDensities: [Float] = []
 
@@ -98,8 +99,7 @@ class FeatureExtractor {
                 let startX = gx * blockW
                 let startY = gy * blockH
 
-                let edgeDetectionThreshold: Float = 30
-        for y in startY..<(startY + blockH - 1) {
+                for y in startY..<(startY + blockH - 1) {
                     for x in startX..<(startX + blockW - 1) {
                         let idx = (y * width + x) * bytesPerPixel
                         let idxR = ((y + 1) * width + x) * bytesPerPixel

@@ -44,29 +44,11 @@ class ModelRunner {
     }
 
     // MARK: - Inference
-    // TensorFlow Lite is loaded dynamically if available; falls back to mock.
+    // TensorFlow Lite integration requires the TFLiteSwift framework to be linked.
+    // When the framework is not present the mock classifier is used automatically.
 
     private func runInference(input: [Float]) -> ClassificationResult? {
-        // Dynamic TFLite loading via NSClassFromString to avoid hard compile dependency
-        guard
-            let modelURL = Bundle.main.url(forResource: "CoinClassifier", withExtension: "tflite"),
-            let interpreterClass = NSClassFromString("TFLInterpreter") as? NSObject.Type
-        else {
-            return nil
-        }
-
-        // Attempt to create interpreter using KVC/messaging
-        let interpreter = interpreterClass.init()
-        interpreter.setValue(modelURL.path, forKey: "modelPath")
-
-        // If we can't allocate tensors via messaging, bail out
-        guard interpreter.responds(to: NSSelectorFromString("allocateTensorsWithError:")) else {
-            return nil
-        }
-
-        // The actual TFLite invocation is only safe when the framework is linked.
-        // Since it's not guaranteed, we return nil so mockResult is used.
-        _ = interpreter  // suppress unused warning
+        // TFLite is not linked in this build; return nil to fall through to mock.
         return nil
     }
 
