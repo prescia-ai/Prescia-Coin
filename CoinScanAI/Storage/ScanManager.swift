@@ -25,6 +25,25 @@ class ScanManager: ObservableObject {
         features: ExtractionResult,
         prediction: ClassificationResult
     ) -> ScanResult {
+        return saveScan(
+            original: original,
+            variants: variants,
+            hybridResult: nil,
+            enhancedPrediction: nil,
+            features: features,
+            prediction: prediction
+        )
+    }
+
+    /// Extended save that accepts hybrid extraction and enhanced classification results.
+    func saveScan(
+        original: UIImage,
+        variants: [ProcessedImage],
+        hybridResult: HybridExtractionResult?,
+        enhancedPrediction: EnhancedClassificationResult?,
+        features: ExtractionResult,
+        prediction: ClassificationResult
+    ) -> ScanResult {
         let id = UUID().uuidString
         let scanDir = coinsDirectory.appendingPathComponent(id, isDirectory: true)
 
@@ -45,8 +64,9 @@ class ScanManager: ObservableObject {
             }
         }
 
-        // Build DetectedIssues from anomaly regions
-        let issues = features.anomalyRegions.map { region in
+        // Build DetectedIssues from anomaly regions (prefer hybrid traditional regions)
+        let sourceRegions = hybridResult?.traditionalResult.anomalyRegions ?? features.anomalyRegions
+        let issues = sourceRegions.map { region in
             DetectedIssue(
                 type: region.type,
                 confidence: region.confidence,
@@ -54,14 +74,28 @@ class ScanManager: ObservableObject {
             )
         }
 
+        // Determine anomaly score: prefer hybrid final score if available.
+        // When hybridResult is given, features is still required for its anomalyRegions
+        // fallback when the hybrid result has no traditional regions (e.g. region-free AI run).
+        let anomalyScore = hybridResult?.finalAnomalyScore ?? features.anomalyScore
+
         let result = ScanResult(
             id: id,
             date: Date(),
-            anomalyScore: features.anomalyScore,
+            anomalyScore: anomalyScore,
             detectedIssues: issues,
-            aiPrediction: prediction.label,
-            aiConfidence: prediction.confidence,
-            imagePaths: imagePaths
+            aiPrediction: enhancedPrediction?.coinType.label ?? prediction.label,
+            aiConfidence: enhancedPrediction?.coinType.confidence ?? prediction.confidence,
+            imagePaths: imagePaths,
+            anomalyType: enhancedPrediction?.anomaly.anomalyType
+                         ?? hybridResult?.aiPrediction?.anomalyType,
+            anomalySeverity: enhancedPrediction?.anomaly.severity
+                             ?? hybridResult?.aiPrediction?.severity,
+            conditionGrade: enhancedPrediction?.condition?.grade,
+            conditionScore: enhancedPrediction?.condition?.numericScore,
+            detectionMethod: hybridResult?.detectionMethod,
+            aiAnomalyConfidence: enhancedPrediction?.anomaly.confidence
+                                 ?? hybridResult?.aiPrediction?.confidence
         )
 
         // Save metadata
