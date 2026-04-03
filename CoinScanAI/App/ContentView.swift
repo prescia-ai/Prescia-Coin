@@ -2,10 +2,39 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var scanManager = ScanManager()
+    @EnvironmentObject var collectionManager: CollectionManager
     @State private var showCamera = false
     @State private var selectedScan: ScanResult?
+    @State private var selectedTab: Int = 0
 
     var body: some View {
+        TabView(selection: $selectedTab) {
+            scannerTab
+                .tabItem {
+                    Label("Scanner", systemImage: "camera.fill")
+                }
+                .tag(0)
+
+            CollectionView()
+                .tabItem {
+                    Label("My Collection", systemImage: "archivebox.fill")
+                }
+                .tag(1)
+
+            NavigationView {
+                SettingsView()
+            }
+            .navigationViewStyle(.stack)
+            .tabItem {
+                Label("Settings", systemImage: "gearshape.fill")
+            }
+            .tag(2)
+        }
+    }
+
+    // MARK: - Scanner Tab
+
+    private var scannerTab: some View {
         NavigationView {
             List {
                 Section {
@@ -27,7 +56,9 @@ struct ContentView: View {
                             .font(.subheadline)
                     } else {
                         ForEach(scanManager.scans) { scan in
-                            NavigationLink(destination: ResultView(scan: scan, scanManager: scanManager)) {
+                            NavigationLink(
+                                destination: ResultView(scan: scan, scanManager: scanManager)
+                            ) {
                                 ScanRowView(scan: scan)
                             }
                         }

@@ -4,7 +4,15 @@ struct ResultView: View {
     let scan: ScanResult
     let scanManager: ScanManager
 
+    @EnvironmentObject var collectionManager: CollectionManager
+    @AppStorage("cloudEnabled") private var cloudEnabled = false
+    @AppStorage("autoContribute") private var autoContribute = false
+
     @State private var selectedTab: ProcessingType = .original
+    @State private var showingAddToCollection = false
+    @State private var cloudVerification: VerificationResult?
+    @State private var isVerifying = false
+    @State private var isBackendOnline = false
 
     var body: some View {
         ScrollView {
@@ -84,6 +92,11 @@ struct ResultView: View {
                     }
                 }
                 .padding(.horizontal)
+
+                // Cloud Verification Card (shown when enabled)
+                if cloudEnabled {
+                    cloudVerificationCard
+                }
 
                 // Anomaly Status Card
                 GroupBox {
@@ -202,11 +215,140 @@ struct ResultView: View {
                     }
                     .padding(.horizontal)
                 }
+
+                // Add to Collection Button
+                addToCollectionButton
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
             }
             .padding(.bottom, 24)
         }
         .navigationTitle("Scan Result")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingAddToCollection) {
+            AddToCollectionSheet(scan: scan)
+                .environmentObject(collectionManager)
+        }
+        .task {
+            if cloudEnabled {
+                await runCloudVerification()
+            }
+        }
+    }
+
+    // MARK: - Cloud Verification Card
+
+    @ViewBuilder
+    private var cloudVerificationCard: some View {
+        GroupBox {
+            VStack(spacing: 8) {
+                HStack {
+                    Image(systemName: "cloud.fill")
+                        .foregroundColor(.blue)
+                    Text("Cloud Verification")
+                        .font(.subheadline.bold())
+                    Spacer()
+                    if isVerifying {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .scaleEffect(0.8)
+                    } else if !isBackendOnline {
+                        Text("Offline")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.secondary.opacity(0.12))
+                            .cornerRadius(6)
+                    }
+                }
+
+                if let result = cloudVerification {
+                    Divider()
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Status")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(verificationStatusLabel(result.status))
+                                .font(.subheadline.bold())
+                                .foregroundColor(verificationStatusColor(result.status))
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("Matches")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("\(result.matchCount)")
+                                .font(.subheadline.bold())
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("Confidence")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(String(format: "%.0f%%", result.confidence * 100))
+                                .font(.subheadline.bold())
+                        }
+                    }
+                } else if !isVerifying && isBackendOnline {
+                    Text("Verification unavailable")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    // MARK: - Add to Collection Button
+
+    private var addToCollectionButton: some View {
+        let alreadyAdded = collectionManager.isInCollection(scanId: scan.id)
+        return Button {
+            if !alreadyAdded {
+                showingAddToCollection = true
+            }
+        } label: {
+            Label(
+                alreadyAdded ? "Added to Collection" : "Add to Collection",
+                systemImage: alreadyAdded ? "checkmark.circle.fill" : "plus.circle.fill"
+            )
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(alreadyAdded ? Color.green.opacity(0.15) : Color.accentColor)
+            .foregroundColor(alreadyAdded ? .green : .white)
+            .cornerRadius(12)
+        }
+        .disabled(alreadyAdded)
+    }
+
+    // MARK: - Cloud Verification
+
+    private func runCloudVerification() async {
+        isVerifying = true
+        let client = BackendClient.shared
+        let reachable = await client.isBackendReachable()
+        isBackendOnline = reachable
+
+        if reachable {
+            let extractor = CloudFeatureExtractor()
+            if let img = scanManager.image(for: scan, type: .original) {
+                let features = extractor.extractCloudFeatures(from: img)
+                let result = await client.verifyCoins(features: features, coinType: scan.aiPrediction)
+                cloudVerification = result
+
+                if autoContribute, let _ = result {
+                    let isVerified = scan.anomalyScore < 0.3 && scan.aiConfidence > 0.8
+                    await client.contribute(
+                        features: features,
+                        coinType: scan.aiPrediction,
+                        verified: isVerified
+                    )
+                }
+            }
+        }
+        isVerifying = false
     }
 
     // MARK: - Helpers
@@ -265,6 +407,22 @@ struct ResultView: View {
         case "Fine", "Very Good":   return "🟢"
         case "Good", "Fair":        return "🟡"
         default:                    return "🔴"
+        }
+    }
+
+    private func verificationStatusLabel(_ status: String) -> String {
+        switch status {
+        case "verified":   return "✅ Verified"
+        case "suspicious": return "⚠️ Suspicious"
+        default:           return "❓ Unknown"
+        }
+    }
+
+    private func verificationStatusColor(_ status: String) -> Color {
+        switch status {
+        case "verified":   return .green
+        case "suspicious": return .orange
+        default:           return .secondary
         }
     }
 }
