@@ -128,8 +128,9 @@ extension UIImage {
 
         ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
-        // Convert to float array [R, G, B, R, G, B, ...] normalized to [-1, 1]
-        // 127.5 = 255 / 2, maps [0, 255] → [-1, 1] as required by MobileNet-style models
+        // Convert to float array [R, G, B, R, G, B, ...] normalized to [-1, 1].
+        // MobileNet-style models expect input in [-1, 1]: (pixel / 127.5) - 1.0
+        // where 127.5 = 255 / 2 maps the [0, 255] uint8 range to [-1, 1].
         let normalizationFactor: Float = 127.5
         var floats = [Float](repeating: 0, count: width * height * 3)
         var floatIdx = 0

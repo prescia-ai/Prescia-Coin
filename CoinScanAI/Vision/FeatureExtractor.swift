@@ -89,6 +89,8 @@ class FeatureExtractor {
         let gridSize = 4
         let blockW = width / gridSize
         let blockH = height / gridSize
+        // 30/255 ≈ 12% luminance difference — sensitive enough to catch subtle die
+        // doubling and cracks while rejecting JPEG compression noise.
         let edgeDetectionThreshold: Float = 30
 
         var edgeDensities: [Float] = []
