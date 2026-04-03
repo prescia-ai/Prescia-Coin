@@ -151,6 +151,14 @@ class ModelRunner {
         )
     }
 
+    // MARK: - Cloud Feature Extraction
+
+    /// Extracts a privacy-safe 512-dimensional feature vector suitable for cloud upload.
+    func extractCloudFeatures(image: UIImage) -> [Float]? {
+        let extractor = CloudFeatureExtractor()
+        return extractor.extractCloudFeatures(from: image)
+    }
+
     // Maps anomaly prediction + classification confidence to a condition grade.
     private func deriveConditionGrade(from anomaly: AnomalyPrediction, coinConfidence: Float) -> ConditionGrade {
         let grades: [(name: String, maxScore: Float)] = [

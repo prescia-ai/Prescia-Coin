@@ -9,9 +9,12 @@ An iOS application that uses computer vision and AI to identify and classify coi
 - **🧠 AI Classification**: Machine learning model to identify coin types with confidence scores
 - **🔬 Hybrid Anomaly Detection**: Combines traditional CV with AI deep learning for accurate flaw detection
 - **💾 Scan History**: Save and review previous scans with timestamps
+- **🗂️ My Collection**: Curate your personal coin collection with metadata, tags, and estimated values
+- **☁️ Cloud Verification (Optional)**: Verify coins against a self-hosted community database
 - **🔄 Image Processing**: Generates multiple image variants for enhanced analysis
 - **✨ Feature Extraction**: Analyzes coin characteristics including edges, circles, and texture patterns
 - **🏅 Condition Grading**: AI-powered condition assessment on a standard numismatic scale
+- **⚙️ Settings**: Configure cloud backend URL and privacy preferences
 
 ## Supported Coins
 
@@ -44,7 +47,9 @@ CoinScanAI/
 │   ├── CoinScanAIApp.swift
 │   ├── ContentView.swift
 │   ├── CameraView.swift
-│   └── ResultView.swift
+│   ├── ResultView.swift
+│   ├── CollectionView.swift      # My Collection UI
+│   └── SettingsView.swift        # Cloud & privacy settings
 ├── Vision/           # Computer vision and image processing
 │   ├── CoinDetector.swift
 │   ├── ImageProcessor.swift
@@ -52,8 +57,14 @@ CoinScanAI/
 ├── AI/               # Machine learning model runners
 │   ├── ModelRunner.swift         # Multi-task classification model
 │   └── AnomalyDetector.swift     # Dedicated anomaly detection module
+├── Cloud/            # Self-hosted backend integration
+│   ├── BackendClient.swift       # REST client for verification API
+│   └── CloudFeatureExtractor.swift  # Privacy-safe feature extraction
 ├── OpenCV/           # OpenCV wrapper for coin detection
 ├── Storage/          # Data persistence layer
+│   ├── ScanManager.swift
+│   ├── ScanModel.swift
+│   └── CollectionManager.swift   # Personal collection storage
 └── Utils/            # Helper utilities
 ```
 
@@ -214,9 +225,98 @@ Without ML models, the app provides:
 
 ---
 
-## Contributing
+---
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## My Collection
+
+The **My Collection** tab lets you curate a personal database of coins you own or have examined.
+
+### Features
+
+- **Add to Collection**: After scanning a coin, tap "Add to Collection" in the result view
+- **Custom Metadata**: Record year, mint mark, condition, estimated value, notes, and tags
+- **Filter & Search**: Find coins by type, year, notes, or tags
+- **Sort Options**: By date added, coin type, or estimated value
+- **Grid / List View**: Toggle between a dense grid and a detailed list
+- **Stats Dashboard**: Total count, favorite count, and estimated portfolio value
+- **Export**: Share your collection as a JSON file for backup or import into other tools
+- **Favorites**: Star your most prized coins for quick access
+
+### Offline-First
+
+The collection is stored entirely on-device in `Documents/collection.json`. No internet connection is required.
+
+---
+
+## Cloud Verification (Optional)
+
+Cloud verification lets you check a coin against a community-maintained database of verified reference feature vectors. It is **disabled by default** and requires a self-hosted backend.
+
+### How It Works
+
+1. When a scan completes, the app extracts a 512-dimensional mathematical feature vector from the coin image
+2. The vector (never the raw image) is sent to your backend
+3. The backend returns a match count, confidence score, and status: `verified`, `suspicious`, or `unknown`
+4. Results are shown in a cloud badge on the scan result screen
+5. Optionally, the app can auto-contribute high-quality scans to grow the database
+
+### Enabling Cloud Verification
+
+1. Open the **Settings** tab
+2. Toggle **Enable Cloud Verification**
+3. Enter your backend URL (default: `http://localhost:3000/api`)
+4. Optionally enable **Auto-contribute verified scans**
+5. Tap **Test** to confirm connectivity
+
+### Offline Behavior
+
+When the backend is unreachable the cloud card shows "Offline". All other app features continue to work normally.
+
+---
+
+## Privacy & Data
+
+### What Gets Uploaded (when cloud is enabled)
+
+| Data | Uploaded? |
+|------|-----------|
+| Mathematical feature vectors | ✅ Yes |
+| Coin type classification | ✅ Yes |
+| Anonymous device ID (random UUID) | ✅ Yes |
+| Raw coin images | ❌ Never |
+| Personal information | ❌ Never |
+| Location data | ❌ Never |
+| User identity | ❌ Never |
+
+### Feature Vectors Explained
+
+The `CloudFeatureExtractor` produces a 512-element array of floating-point numbers derived from:
+- Luminance grid (16×16)
+- Edge density grid (8×8)
+- Per-channel color histograms (3 × 32 bins)
+- Texture statistics (mean, variance, skewness, kurtosis per channel)
+- Radial luminance profile (21 rings)
+
+This representation cannot be used to reconstruct the original image.
+
+---
+
+## Self-Hosting
+
+The backend repository will be published separately. In summary, the backend exposes three endpoints:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/verify` | POST | Compare a feature vector against the database |
+| `/api/contribute` | POST | Add a new feature vector to the database |
+| `/api/reference-counts` | GET | Return the number of stored samples per coin type |
+| `/api/health` | GET | Health check (used by the app to detect connectivity) |
+
+The app caches `/api/reference-counts` responses for 5 minutes to reduce network usage. All network calls time out after 10 seconds.
+
+---
+
+
 
 ## License
 

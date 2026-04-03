@@ -21,6 +21,12 @@
 		A00100000000000C /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000C /* OpenCVWrapper.mm */; settings = {COMPILER_FLAGS = "-std=c++17 -fno-objc-arc"; }; };
 		A00100000000000D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00200000000000D /* Assets.xcassets */; };
 		A00100000000000E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A00200000000000E /* Info.plist */; };
+		A001000000000030 /* AnomalyDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000000000030 /* AnomalyDetector.swift */; };
+		A001000000000031 /* CollectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000000000031 /* CollectionManager.swift */; };
+		A001000000000032 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000000000032 /* CollectionView.swift */; };
+		A001000000000033 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000000000033 /* SettingsView.swift */; };
+		A001000000000034 /* BackendClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000000000034 /* BackendClient.swift */; };
+		A001000000000035 /* CloudFeatureExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000000000035 /* CloudFeatureExtractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +47,12 @@
 		A00200000000000F /* OpenCVWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
 		A002000000000010 /* CoinScanAI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CoinScanAI-Bridging-Header.h"; sourceTree = "<group>"; };
 		A002000000000020 /* CoinScanAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoinScanAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A002000000000030 /* AnomalyDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnomalyDetector.swift; sourceTree = "<group>"; };
+		A002000000000031 /* CollectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionManager.swift; sourceTree = "<group>"; };
+		A002000000000032 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
+		A002000000000033 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A002000000000034 /* BackendClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendClient.swift; sourceTree = "<group>"; };
+		A002000000000035 /* CloudFeatureExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudFeatureExtractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +83,7 @@
 				A004000000000005 /* Storage */,
 				A004000000000006 /* Utils */,
 				A004000000000007 /* OpenCV */,
+				A004000000000008 /* Cloud */,
 				A00200000000000D /* Assets.xcassets */,
 				A00200000000000E /* Info.plist */,
 				A002000000000010 /* CoinScanAI-Bridging-Header.h */,
@@ -85,6 +98,8 @@
 				A002000000000002 /* ContentView.swift */,
 				A002000000000003 /* CameraView.swift */,
 				A002000000000004 /* ResultView.swift */,
+				A002000000000032 /* CollectionView.swift */,
+				A002000000000033 /* SettingsView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -103,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				A002000000000008 /* ModelRunner.swift */,
+				A002000000000030 /* AnomalyDetector.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -112,6 +128,7 @@
 			children = (
 				A002000000000009 /* ScanManager.swift */,
 				A00200000000000A /* ScanModel.swift */,
+				A002000000000031 /* CollectionManager.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -131,6 +148,15 @@
 				A00200000000000C /* OpenCVWrapper.mm */,
 			);
 			path = OpenCV;
+			sourceTree = "<group>";
+		};
+		A004000000000008 /* Cloud */ = {
+			isa = PBXGroup;
+			children = (
+				A002000000000034 /* BackendClient.swift */,
+				A002000000000035 /* CloudFeatureExtractor.swift */,
+			);
+			path = Cloud;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -214,6 +240,12 @@
 				A00100000000000A /* ScanModel.swift in Sources */,
 				A00100000000000B /* ImageExtensions.swift in Sources */,
 				A00100000000000C /* OpenCVWrapper.mm in Sources */,
+				A001000000000030 /* AnomalyDetector.swift in Sources */,
+				A001000000000031 /* CollectionManager.swift in Sources */,
+				A001000000000032 /* CollectionView.swift in Sources */,
+				A001000000000033 /* SettingsView.swift in Sources */,
+				A001000000000034 /* BackendClient.swift in Sources */,
+				A001000000000035 /* CloudFeatureExtractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

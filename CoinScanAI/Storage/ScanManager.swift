@@ -162,6 +162,13 @@ class ScanManager: ObservableObject {
         return UIImage(contentsOfFile: relativePath)
     }
 
+    // MARK: - Collection Helpers
+
+    /// Returns true when the scan quality is high enough to be a good collection candidate.
+    func isCollectionCandidate(_ scan: ScanResult) -> Bool {
+        return scan.aiConfidence > 0.8 && scan.anomalyScore < 0.3
+    }
+
     // MARK: - Private Helpers
 
     private func createBaseDirectoryIfNeeded() {
