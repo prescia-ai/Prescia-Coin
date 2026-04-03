@@ -233,7 +233,7 @@ The **My Collection** tab lets you curate a personal database of coins you own o
 
 ### Features
 
-- **Add to Collection**: After scanning a coin tap "Add to Collection" in the result view
+- **Add to Collection**: After scanning a coin, tap "Add to Collection" in the result view
 - **Custom Metadata**: Record year, mint mark, condition, estimated value, notes, and tags
 - **Filter & Search**: Find coins by type, year, notes, or tags
 - **Sort Options**: By date added, coin type, or estimated value
@@ -268,7 +268,7 @@ Cloud verification lets you check a coin against a community-maintained database
 4. Optionally enable **Auto-contribute verified scans**
 5. Tap **Test** to confirm connectivity
 
-### Offline Behaviour
+### Offline Behavior
 
 When the backend is unreachable the cloud card shows "Offline". All other app features continue to work normally.
 

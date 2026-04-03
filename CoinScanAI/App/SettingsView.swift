@@ -131,7 +131,6 @@ private struct PrivacyRow: View {
     var body: some View {
         Label(text, systemImage: icon)
             .font(.subheadline)
-            .foregroundColor(color == .green ? .primary : .primary)
             .labelStyle(ColoredIconLabelStyle(color: color))
     }
 }
