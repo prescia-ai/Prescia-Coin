@@ -103,9 +103,9 @@ The app calculates an anomaly score based on:
 - Feature consistency
 
 Visual indicators:
-- 🟢 Green (0-30%): Normal coin
-- 🟠 Orange (30-60%): Possible irregularities
-- 🔴 Red (60-100%): High anomaly detected
+- 🟢 Green - Low (0-30%): Normal coin
+- 🟠 Orange - Medium (30-60%): Possible irregularities
+- 🔴 Red - High (60-100%): High anomaly detected
 
 ## Contributing
 
