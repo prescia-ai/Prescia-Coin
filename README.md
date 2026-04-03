@@ -293,7 +293,7 @@ When the backend is unreachable the cloud card shows "Offline". All other app fe
 The `CloudFeatureExtractor` produces a 512-element array of floating-point numbers derived from:
 - Luminance grid (16×16)
 - Edge density grid (8×8)
-- Per-channel colour histograms (3 × 32 bins)
+- Per-channel color histograms (3 × 32 bins)
 - Texture statistics (mean, variance, skewness, kurtosis per channel)
 - Radial luminance profile (21 rings)
 

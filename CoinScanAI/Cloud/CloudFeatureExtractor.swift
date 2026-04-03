@@ -124,9 +124,9 @@ class CloudFeatureExtractor {
         let total = size * size
         for i in 0..<total {
             let idx = i * 4
-            let r = Int(rawData[idx]) * bins / 256
-            let g = Int(rawData[idx + 1]) * bins / 256
-            let b = Int(rawData[idx + 2]) * bins / 256
+            let r = Int(Double(rawData[idx])     / 256.0 * Double(bins))
+            let g = Int(Double(rawData[idx + 1]) / 256.0 * Double(bins))
+            let b = Int(Double(rawData[idx + 2]) / 256.0 * Double(bins))
             rHist[min(r, bins - 1)] += 1
             gHist[min(g, bins - 1)] += 1
             bHist[min(b, bins - 1)] += 1

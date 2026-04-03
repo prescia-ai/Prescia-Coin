@@ -339,7 +339,7 @@ struct ResultView: View {
                 cloudVerification = result
 
                 if autoContribute, result != nil {
-                    let isVerified = scan.anomalyScore < 0.3 && scan.aiConfidence > 0.8
+                    let isVerified = scanManager.isCollectionCandidate(scan)
                     await client.contribute(
                         features: features,
                         coinType: scan.aiPrediction,

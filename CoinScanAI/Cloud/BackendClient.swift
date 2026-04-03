@@ -37,12 +37,12 @@ class BackendClient {
     private var referenceCountsCache: [String: Int]?
     private var referenceCountsCacheTime: Date?
 
-    private var session: URLSession {
+    private lazy var session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = timeoutInterval
         config.timeoutIntervalForResource = timeoutInterval
         return URLSession(configuration: config)
-    }
+    }()
 
     // MARK: - API Endpoints
 

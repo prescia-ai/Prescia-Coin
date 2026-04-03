@@ -424,7 +424,7 @@ struct AddToCollectionSheet: View {
     private func addToCollection() {
         let parsedYear    = Int(year)
         let parsedValue   = Double(estimatedValue)
-        let parsedTags    = tagsText
+        let cleanedTags   = tagsText
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
@@ -436,7 +436,7 @@ struct AddToCollectionSheet: View {
             estimatedValue: parsedValue,
             notes: notes,
             isFavorite: isFavorite,
-            tags: parsedTags
+            tags: cleanedTags
         )
         collectionManager.addToCollection(from: scan, metadata: metadata)
     }
